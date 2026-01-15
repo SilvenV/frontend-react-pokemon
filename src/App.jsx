@@ -32,9 +32,7 @@ function App() {
     }, [offset]);
 
     const fetchTotalListLength = async (signal) => {
-        toggleLoading(true);
         try {
-            // await new Promise(resolve => setTimeout(resolve, 2000));
             const totalList = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=1', {signal});
             setTotalPokemonListLength(totalList.data.count)
             console.log(totalList.data.count);
@@ -44,8 +42,6 @@ function App() {
             } else{
                 console.error('Error fetching Pokémon:', error);
             }
-        } finally {
-            toggleLoading(false);
         }
     }
 
