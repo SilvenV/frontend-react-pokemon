@@ -14,34 +14,46 @@ function App() {
 
 
     useEffect(() => {
-        fetchTotalListLength().catch(error => {
+        const controller = new AbortController();
+
+        fetchTotalListLength(controller.signal).catch(error => {
             console.error('Failed to fetch total length:', error);
         });
+
+        return ()=> controller.abort();
     }, []);
 
     useEffect(() => {
-        fetchPokemonList();
+        const controller = new AbortController();
+
+        fetchPokemonList(controller.signal);
+
+        return ()=> controller.abort();
     }, [offset]);
 
-    const fetchTotalListLength = async () => {
+    const fetchTotalListLength = async (signal) => {
         toggleLoading(true);
         try {
             // await new Promise(resolve => setTimeout(resolve, 2000));
-            const totalList = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=1');
+            const totalList = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=1', {signal});
             setTotalPokemonListLength(totalList.data.count)
             console.log(totalList.data.count);
         } catch (error) {
-            console.error('Error fetching Pokémon:', error);
+            if (error.code === 'ERR_CANCELED') {
+                console.log('Previous request cancelled.');
+            } else{
+                console.error('Error fetching Pokémon:', error);
+            }
         } finally {
             toggleLoading(false);
         }
     }
 
-    const fetchPokemonList = async () => {
+    const fetchPokemonList = async (signal) => {
         toggleLoading(true);
         try {
             // await new Promise(resolve => setTimeout(resolve, 2000));
-            const listResponse = await axios.get(`https://pokeapi.co/api/v2/pokemon?limit=20&offset=${offset}`);
+            const listResponse = await axios.get(`https://pokeapi.co/api/v2/pokemon?limit=20&offset=${offset}`, {signal});
 
             const detailedPromises = listResponse.data.results.map(pokemon =>
                 axios.get(`https://pokeapi.co/api/v2/pokemon/${pokemon.name}`)
@@ -52,7 +64,11 @@ function App() {
             setPokemonList(pokemonData);
             console.log(pokemonData);
         } catch (error) {
-            console.error('Error fetching Pokémon:', error);
+            if (error.code === 'ERR_CANCELED') {
+                console.log('Previous request cancelled.');
+            } else{
+                console.error('Error fetching Pokémon:', error);
+            }
         } finally {
             toggleLoading(false);
         }
