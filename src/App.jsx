@@ -10,11 +10,13 @@ function App() {
     const [pokemonList, setPokemonList] = useState([]);
     const [offset, setOffset] = useState(0);
     const [totalPokemonListLength, setTotalPokemonListLength] = useState(0)
+    const [loading, toggleLoading] = useState(false);
 
 
     useEffect(() => {
-        fetchTotalListLength();
-        // setTotalPokemonListLength= await axios.get('https://pokeapi.co/api/v2/pokemon?limit=10000').length;
+        fetchTotalListLength().catch(error => {
+            console.error('Failed to fetch total length:', error);
+        });
     }, []);
 
     useEffect(() => {
@@ -22,17 +24,23 @@ function App() {
     }, [offset]);
 
     const fetchTotalListLength = async () => {
+        toggleLoading(true);
         try {
-            const totalList = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=10000');
+            // await new Promise(resolve => setTimeout(resolve, 2000));
+            const totalList = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=1');
             setTotalPokemonListLength(totalList.data.count)
             console.log(totalList.data.count);
         } catch (error) {
             console.error('Error fetching Pokémon:', error);
+        } finally {
+            toggleLoading(false);
         }
     }
 
     const fetchPokemonList = async () => {
+        toggleLoading(true);
         try {
+            // await new Promise(resolve => setTimeout(resolve, 2000));
             const listResponse = await axios.get(`https://pokeapi.co/api/v2/pokemon?limit=20&offset=${offset}`);
 
             const detailedPromises = listResponse.data.results.map(pokemon =>
@@ -45,6 +53,8 @@ function App() {
             console.log(pokemonData);
         } catch (error) {
             console.error('Error fetching Pokémon:', error);
+        } finally {
+            toggleLoading(false);
         }
     };
 
@@ -69,7 +79,10 @@ function App() {
                     <button type="button" onClick={nextPage} disabled={offset >= totalPokemonListLength-20}>Volgende</button>
                 </div>
             </header>
-            <div className="pokemon-grid">
+            {loading ?
+                <p className="loading-msg">Loading</p>
+                :
+                <div className="pokemon-grid">
                 {pokemonList.map((pokemon) => (
                     <li
                         key={pokemon.id}
@@ -78,7 +91,7 @@ function App() {
                         <PokemonCard data={pokemon}/>
                     </li>
                 ))}
-            </div>
+            </div>}
         </>
     )
 }

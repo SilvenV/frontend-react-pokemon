@@ -13,3 +13,21 @@ header{
     flex-direction: column;
     align-items: center;
 }
+
+.loading-msg{
+    font-size: 1.5rem;
+    color: #333;
+    text-align: center;
+    margin: 20px;
+}
+
+@keyframes dot-blink {
+    0%, 33% { content: '.'; }
+    34%, 66% { content: '..'; }
+    67%, 100% { content: '...'; }
+}
+
+.loading-msg::after {
+    content: '';
+    animation: dot-blink 1s infinite;
+}
