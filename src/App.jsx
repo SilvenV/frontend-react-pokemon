@@ -8,20 +8,32 @@ import PokemonLogo from './assets/International_Pokémon_logo.webp';
 function App() {
 
     const [pokemonList, setPokemonList] = useState([]);
-    // const [pokemonNameList, setPokemonNameList] = useState([]);
     const [offset, setOffset] = useState(0);
-    // const [pokemon, setPokemon] = useState(null);
+    const [totalPokemonListLength, setTotalPokemonListLength] = useState(0)
 
 
     useEffect(() => {
-        fetchPokemonList();
+        fetchTotalListLength();
+        // setTotalPokemonListLength= await axios.get('https://pokeapi.co/api/v2/pokemon?limit=10000').length;
     }, []);
+
+    useEffect(() => {
+        fetchPokemonList();
+    }, [offset]);
+
+    const fetchTotalListLength = async () => {
+        try {
+            const totalList = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=10000');
+            setTotalPokemonListLength(totalList.data.count)
+            console.log(totalList.data.count);
+        } catch (error) {
+            console.error('Error fetching Pokémon:', error);
+        }
+    }
 
     const fetchPokemonList = async () => {
         try {
-            const listResponse = await axios.get(
-                `https://pokeapi.co/api/v2/pokemon?limit=${offset}&offset=0`
-            );
+            const listResponse = await axios.get(`https://pokeapi.co/api/v2/pokemon?limit=20&offset=${offset}`);
 
             const detailedPromises = listResponse.data.results.map(pokemon =>
                 axios.get(`https://pokeapi.co/api/v2/pokemon/${pokemon.name}`)
@@ -36,35 +48,25 @@ function App() {
         }
     };
 
-    // async function fetchPokemon(pokemonName) {
-    //     try {
-    //         const result = await axios.get('https://pokeapi.co/api/v2/pokemon/jigglypuff');
-    //         console.log(result);
-    //         setPokemon(result);
-    //     } catch (e) {
-    //         console.error(e);
-    //     }
-    // }
-
-    function previousPage(){
-        if(offset>20){
-            setOffset(offset-20);
+    function previousPage() {
+        if (offset >= 20) {
+            setOffset(offset - 20);
         }
+        console.log(offset);
     }
 
-    function nextPage(){
-        setOffset(offset+20);
+    function nextPage() {
+        setOffset(offset + 20);
+        console.log(offset);
     }
-
 
     return (
         <>
             <header>
                 <img src={PokemonLogo} alt="Pokemon Logo"/>
-                {/*<button type="button" onClick={() => fetchPokemon()}>Get data</button>*/}
                 <div className="button-container">
-                    <button type="button" onClick={()=>previousPage}>Vorige</button>
-                    <button type="button" onClick={()=>nextPage}>Volgende</button>
+                    <button type="button" onClick={previousPage} disabled={offset < 20}>Vorige</button>
+                    <button type="button" onClick={nextPage} disabled={offset >= totalPokemonListLength-20}>Volgende</button>
                 </div>
             </header>
             <div className="pokemon-grid">
