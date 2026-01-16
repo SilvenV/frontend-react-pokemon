@@ -1,1 +1,39 @@
-/*Schrijf hier jouw eigen CSS!*/
+.pokemon-grid {
+    list-style-type: none;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.loading-msg {
+    font-size: 1.5rem;
+    color: #333;
+    text-align: center;
+    margin: 20px;
+}
+
+@keyframes dot-blink {
+    0%, 33% {
+        content: '.';
+    }
+    34%, 66% {
+        content: '..';
+    }
+    67%, 100% {
+        content: '...';
+    }
+}
+
+.loading-msg::after {
+    content: '';
+    animation: dot-blink 1s infinite;
+}
