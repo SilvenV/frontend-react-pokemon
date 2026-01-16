@@ -3,6 +3,8 @@ import React, {useEffect, useState} from "react";
 import axios from 'axios';
 import PokemonCard from "./components/PokemonCard.jsx";
 import PokemonLogo from './assets/International_Pokémon_logo.webp';
+import previousPage from './helpers/previousPageHelper.js'
+import nextPage from "./helpers/nextPageHelper.js";
 
 
 function App() {
@@ -20,7 +22,7 @@ function App() {
             console.error('Failed to fetch total length:', error);
         });
 
-        return ()=> controller.abort();
+        return () => controller.abort();
     }, []);
 
     useEffect(() => {
@@ -28,7 +30,7 @@ function App() {
 
         fetchPokemonList(controller.signal);
 
-        return ()=> controller.abort();
+        return () => controller.abort();
     }, [offset]);
 
     const fetchTotalListLength = async (signal) => {
@@ -39,7 +41,7 @@ function App() {
         } catch (error) {
             if (error.code === 'ERR_CANCELED') {
                 console.log('Previous request cancelled.');
-            } else{
+            } else {
                 console.error('Error fetching Pokémon:', error);
             }
         }
@@ -62,7 +64,7 @@ function App() {
         } catch (error) {
             if (error.code === 'ERR_CANCELED') {
                 console.log('Previous request cancelled.');
-            } else{
+            } else {
                 console.error('Error fetching Pokémon:', error);
             }
         } finally {
@@ -70,40 +72,33 @@ function App() {
         }
     };
 
-    function previousPage() {
-        if (offset >= 20) {
-            setOffset(offset - 20);
-        }
-        console.log(offset);
-    }
-
-    function nextPage() {
-        setOffset(offset + 20);
-        console.log(offset);
-    }
 
     return (
         <>
             <header>
                 <img src={PokemonLogo} alt="Pokemon Logo"/>
                 <div className="button-container">
-                    <button type="button" onClick={previousPage} disabled={offset < 20}>Vorige</button>
-                    <button type="button" onClick={nextPage} disabled={offset >= totalPokemonListLength-20}>Volgende</button>
+                    <button type="button" onClick={() => setOffset(previousPage(offset))}
+                            disabled={offset < 20}>Vorige
+                    </button>
+                    <button type="button" onClick={() => setOffset(nextPage(offset))}
+                            disabled={offset >= totalPokemonListLength - 20}>Volgende
+                    </button>
                 </div>
             </header>
             {loading ?
                 <p className="loading-msg">Loading</p>
                 :
                 <div className="pokemon-grid">
-                {pokemonList.map((pokemon) => (
-                    <li
-                        key={pokemon.id}
-                        className="ability-item"
-                    >
-                        <PokemonCard data={pokemon}/>
-                    </li>
-                ))}
-            </div>}
+                    {pokemonList.map((pokemon) => (
+                        <li
+                            key={pokemon.id}
+                            className="ability-item"
+                        >
+                            <PokemonCard data={pokemon}/>
+                        </li>
+                    ))}
+                </div>}
         </>
     )
 }

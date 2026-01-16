@@ -4,11 +4,11 @@ import './PokemonCard.css';
 function PokemonCard({data}) {
     return (
         <article className="pokemon-card">
-                <h1>{data.name}</h1>
-                <img
-                    src={data.sprites.front_default}
-                    alt={data.name}
-                />
+            <h1>{data.name}</h1>
+            <img
+                src={data.sprites.front_default}
+                alt={data.name}
+            />
             <div className="pokemon-stats">
                 <div className="stat-item">
                     <span className="stat-label">Moves</span>
